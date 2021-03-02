@@ -20,17 +20,16 @@ public final class Utils {
     private Utils() {
     }
 
-    public static boolean validateMessage(Message message) throws JMSException {
-        boolean result = false;
-        if (message instanceof TextMessage) {
-            TextMessage textMessage = (TextMessage) message;
-            result = !textMessage.getText().isBlank();
+    public static String getStringOrException(Message msg) throws JMSException {
+        String result = "";
+        if (msg instanceof TextMessage) {
+            TextMessage textMessage = (TextMessage) msg;
+            if (!textMessage.getText().isBlank()) {
+                result = textMessage.getText();
+            } else {
+                throw new JMSException(MESSAGE_IS_EMPTY);
+            }
         }
         return result;
-    }
-
-    public static String transformMessageToString(Message msg) throws JMSException {
-        TextMessage textMessage = (TextMessage) msg;
-        return textMessage.getText();
     }
 }

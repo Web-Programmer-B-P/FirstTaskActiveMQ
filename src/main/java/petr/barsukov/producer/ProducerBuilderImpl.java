@@ -6,7 +6,7 @@ import javax.jms.JMSException;
 import java.util.Objects;
 
 public class ProducerBuilderImpl implements ProducerBuilder {
-    private Producer producer = new Producer();
+    private final Producer producer = new Producer();
 
     @Override
     public ProducerBuilder createSession(ActiveMQSession session) {

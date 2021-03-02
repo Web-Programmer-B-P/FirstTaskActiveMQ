@@ -8,6 +8,7 @@ import petr.barsukov.parent.ActiveMQSession;
 import petr.barsukov.producer.Producer;
 import petr.barsukov.producer.ProducerBuilderImpl;
 import petr.barsukov.utils.Utils;
+
 import javax.jms.*;
 
 public class Starter {
@@ -37,24 +38,23 @@ public class Starter {
             Message message = consumer.receiveMessage();
             LOG.info(Utils.CONSUMER_RECEIVED_MESSAGE);
 
-            if (Utils.validateMessage(message)) {
-                LOG.info(Utils.MESSAGE_VALIDATED_SUCCESS);
-                producer = new ProducerBuilderImpl()
-                        .createSession(activeMQSession)
-                        .createDestinationQueue(Utils.TWO_DESTINATIONS)
-                        .createProducer()
-                        .createNonPersistentMode()
-                        .setMessage(Utils.transformMessageToString(message))
-                        .build();
-                producer.sendMessage();
-                LOG.info(Utils.MESSAGE_SENT_DESTINATIONS);
-            } else {
-                LOG.info(Utils.MESSAGE_IS_EMPTY);
-            }
+            String validMessage = Utils.getStringOrException(message);
 
-            activeMQSession.closeSessionAndConnection();
+            LOG.info(Utils.MESSAGE_VALIDATED_SUCCESS);
+            producer = new ProducerBuilderImpl()
+                    .createSession(activeMQSession)
+                    .createDestinationQueue(Utils.TWO_DESTINATIONS)
+                    .createProducer()
+                    .createNonPersistentMode()
+                    .setMessage(validMessage)
+                    .build();
+            producer.sendMessage();
+            LOG.info(Utils.MESSAGE_SENT_DESTINATIONS);
+
+            activeMQSession.closeSession();
+            activeMQSession.closeConnection();
         } catch (JMSException jmsException) {
-            LOG.trace(jmsException.getStackTrace());
+            LOG.trace(jmsException.getMessage());
         }
     }
 }
